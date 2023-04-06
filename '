@@ -1,0 +1,67 @@
+package controllers
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/arturfil/coffee-api/helpers"
+	"github.com/arturfil/coffee-api/services"
+	"github.com/go-chi/chi/v5"
+)
+
+var models services.Models
+
+// GET/coffees
+func GetAllCoffees(w http.ResponseWriter, r *http.Request) {
+    var coffees services.Coffee
+    all, err := coffees.GetAllCoffees()
+    if err != nil {
+       fmt.Println("ERror", err)
+       return
+    }
+    response, err := json.Marshal(all)
+    w.Write(response)
+}
+
+func GetCoffeeById (w http.ResponseWriter, r *http.Request) {
+    id := chi.URLParam(r, "id")
+    coffee, err := models.Coffee.GetCoffeeById(id)
+    if err != nil {
+        helpers.MessageLogs.ErrorLog.Println(err)
+        return 
+    }
+    helpers.WriteJSON(w, http.StatusOK, coffee)
+}
+
+func CreateCoffee(w http.ResponseWriter, r *http.Request) {
+    var coffeeResp services.Coffee
+    err := json.NewDecoder(r.Body).Decode(&coffeeResp)
+    if err != nil {
+        helpers.MessageLogs.ErrorLog.Println(err)
+        return 
+    }
+    helpers.WriteJSON(w, http.StatusOK, coffeeResp)
+    coffeeCreated, err := models.Coffee.CreateCoffee(coffeeResp)
+    if err != nil {
+        helpers.MessageLogs.ErrorLog.Println(err)
+        helpers.WriteJSON(w, http.StatusOK, coffeeCreated)
+    } 
+}
+
+
+// TODO check the arguements for the update service
+func UpdateCoffee(w http.ResponseWriter, r *http.Request) {
+    var coffee services.Coffee
+    err := json.NewDecoder(r.Body).Decode(&coffee)
+    if err != nil {
+       http.Error(w, err.Error(), http.StatusBadRequest)
+       return
+    }
+    helpers.WriteJSON(w, http.StatusOK, coffee)
+    err = coffee.UpdateCoffee()
+    if err != nil {
+        helpers.MessageLogs.ErrorLog.Println(err)
+        helpers.WriteJSON(w, http.StatusOK, "updated coffee")
+    }
+}
