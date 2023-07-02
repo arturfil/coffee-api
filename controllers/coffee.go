@@ -10,6 +10,7 @@ import (
 )
 
 var models services.Models
+var coffee = models.Coffee
 
 // GET/coffees
 func GetAllCoffees(w http.ResponseWriter, r *http.Request) {
@@ -24,7 +25,7 @@ func GetAllCoffees(w http.ResponseWriter, r *http.Request) {
 
 func GetCoffeeById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	coffee, err := models.Coffee.GetCoffeeById(id)
+	coffee, err := coffee.GetCoffeeById(id)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		return
@@ -40,7 +41,7 @@ func CreateCoffee(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	helpers.WriteJSON(w, http.StatusOK, coffeeResp)
-	coffeeCreated, err := models.Coffee.CreateCoffee(coffeeResp)
+	coffeeCreated, err := coffee.CreateCoffee(coffeeResp)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		helpers.WriteJSON(w, http.StatusOK, coffeeCreated)
@@ -66,7 +67,7 @@ func UpdateCoffee(w http.ResponseWriter, r *http.Request) {
 
 func DeleteCoffee(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	err := models.Coffee.DeleteCoffee(id)
+	err := coffee.DeleteCoffee(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
