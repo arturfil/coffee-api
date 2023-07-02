@@ -21,7 +21,7 @@ func (c *Coffee) GetAllCoffees() ([]*Coffee, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select * from coffees`
+	query := `select id, name, image, roast, region, price, grind_unit, created_at, updated_at from coffees`
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
